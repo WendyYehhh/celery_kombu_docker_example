@@ -37,7 +37,7 @@ graph TD
 ## Directory Structure
 
 ```
-celery_kombu_docker_example/
+rabbitmq-celery-demo/
 ├── docker-compose.yml        # Defines services (RabbitMQ, Redis, Celery, ElasticSearch, Leek)
 ├── celery_app/
 │   ├── __init__.py
@@ -73,7 +73,6 @@ celery_kombu_docker_example/
 1. **Clone the repository:**
     ```bash
     git clone <repository-url>
-    cd celery_kombu_docker_example
     ```
 
 2. **Build and start the services:**
