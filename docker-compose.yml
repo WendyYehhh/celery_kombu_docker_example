@@ -37,7 +37,7 @@ services:
       context: .
       dockerfile: celery_app/Dockerfile
     container_name: celery
-    command: celery -A celery_instance:app worker --loglevel=INFO -Q celery,math_tasks,long_tasks
+    command: celery -A celery_instance:app worker --loglevel=INFO -Q default_queue,quick_task,long_task
     depends_on:
       rabbitmq:
         condition: service_healthy

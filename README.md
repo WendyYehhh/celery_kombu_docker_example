@@ -3,8 +3,31 @@
 This project demonstrates a Celery task queue setup with RabbitMQ as the message broker, Redis as the result backend, and Leek for monitoring, all orchestrated with Docker Compose.
 
 ## Architecture
-
-![Architecture Diagram](https://mermaid.ink/img/pako:eNp1kMFuwjAMhl8lcmCTQB2HnTgMmLZJiE3qYdoBNXFphGJXSVrQEO8-t4wL6i5R_H_-bMdnBMsZEMFbTQ22f8_zNVbvVtvhVH8a_4pFp2MoVidZNfJu20vP06b-QiuhtcNPXxYP7NKNWDkFh36Aw_BN9N2G2QGr_RYfWaZdqR-D4jQ1qANzUqUU3GKITqW44f9-O0iEtFQxJIhT58KIKIpFRLfQzpuIIIU-yXAjS4UxRYnQpnm0qKhFhNZopxVaZ3Ow3VDCE_qkzlJJpSVy1Y_WeDUr-WgtkMsLlBi6qVtrF1S51UvI8Vb02KKS0YMfDpczkLuMb2eZTvOcYrhPK5VNn15fXsHzLMvlJBuT7QhJ9wssRJXA?type=png)
+```mermaid
+graph TD
+    subgraph "Docker Compose Services"
+        RabbitMQ[(RabbitMQ <br> Message Broker <br> Port: 5672 - AMQP <br> Port: 15672 - Management)]
+        Redis[(Redis <br> Result Backend <br> Port: 6379)]
+        Worker[Celery Worker <br> Processes 3 queues: <br> default_queue,quick_task,long_task]
+        Elasticsearch[(Elasticsearch <br> Stores Task History <br> Port: 9200)]
+        
+        subgraph "Leek Monitoring System"
+            LeekAPI[Leek API <br> REST Interface <br> Port: 5000]
+            LeekWeb[Leek Web UI <br> Task Dashboard <br> Port: 5001]
+            LeekAgent[Leek Agent <br> Event Collector]
+        end
+    end
+    
+    Client[Web Client/User] -->|Access Dashboard| LeekWeb
+    LeekWeb -->|Query Data| LeekAPI
+    LeekAPI -->|Read Task History| Elasticsearch
+    LeekAgent -->|Store Task Events| Elasticsearch
+    LeekAgent -->|Subscribe to celeryev| RabbitMQ
+    
+    Worker -->|Consume Tasks| RabbitMQ
+    Worker -->|Store Results| Redis
+    Worker -->|Publish Task Events| RabbitMQ
+```
 
 ## Prerequisites
 

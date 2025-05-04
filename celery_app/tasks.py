@@ -3,7 +3,7 @@ import time
 # Import the app instance directly from the celery_instance module
 from celery_instance import app
 
-@app.task
+@app.task(queue='quick_task')
 def add(x, y):
     """
     A simple task that adds two numbers.
@@ -14,7 +14,7 @@ def add(x, y):
     return result
 
 
-@app.task
+@app.task(queue='long_task')
 def long_task(duration):
     """
     A task that sleeps for a given duration.
@@ -26,7 +26,7 @@ def long_task(duration):
     return result
 
 # When `bind=True`, the task instance itself is passed as the first argument.
-@app.task(bind=True)
+@app.task(bind=True, queue='default_queue')
 def task_with_info(self, data):
     print(f"Task {self.name} called with args: {data}")
     print(f"Task id: {self.request.id}")
