@@ -1,4 +1,4 @@
-# Celery, Kombu, and Docker Example
+# Task, Messsage Broker, and Monitoring system
 
 This project demonstrates a Celery task queue setup with RabbitMQ as the message broker, Redis as the result backend, and Leek for monitoring, all orchestrated with Docker Compose.
 
