@@ -1,0 +1,4 @@
+celery[redis]==5.3.6
+redis>=4.0.0,<5.0.0
+kombu==5.4.2
+# kombu will be installed automatically as a dependency of celery 

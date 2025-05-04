@@ -1,0 +1,50 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.11-management-alpine # Version with management interface
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      # RABBITMQ_DEFAULT_USER: rabbitmq_user
+      # RABBITMQ_DEFAULT_PASS: rabbitmq_password
+      RABBITMQ_DEFAULT_VHOST: /
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: celery_app/Dockerfile
+    container_name: celery
+    command: celery -A celery_instance:app worker --loglevel=INFO -Q celery,math_tasks,long_tasks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Removed C_FORCE_ROOT=true, usually not needed unless specific issues arise
+# Docker Volumes for persistence (optional)
+volumes:
+  rabbitmq_data:
+  redis_data:
