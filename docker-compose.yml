@@ -43,8 +43,48 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    # Removed C_FORCE_ROOT=true, usually not needed unless specific issues arise
-# Docker Volumes for persistence (optional)
+
+  elasticsearch:
+    platform: linux/amd64
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports: ["9200:9200"] 
+
+  # API + Web + Agent
+  leek:
+    platform: linux/amd64
+    container_name: leek
+    image: kodhive/leek:latest 
+    depends_on: [rabbitmq, redis, elasticsearch]
+    environment:
+      - LEEK_ENABLE_API=true
+      - LEEK_ENABLE_WEB=true
+      - LEEK_ENABLE_AGENT=true
+      - LEEK_AGENT_API_SECRET=ThisIsNotSecureChangeMe
+      - LEEK_API_URL=http://0.0.0.0:5000
+      - LEEK_WEB_URL=http://0.0.0.0:8000
+      - LEEK_API_ENABLE_AUTH=false
+      - LEEK_ES_URL=http://elasticsearch:9200
+      - | 
+        LEEK_AGENT_SUBSCRIPTIONS=[
+          {
+            "broker":"amqp://guest:guest@rabbitmq//",
+            "broker_management_url":"http://rabbitmq:15672",
+            "backend":null,
+            "exchange":"celeryev",
+            "queue":"leek.fanout",
+            "routing_key":"#",
+            "org_name":"demo",
+            "app_name":"celeryinstance",
+            "app_env":"local"
+          }
+        ]
+    ports:
+      - "5001:8000"     # Web UI
+      - "5000:5000"     # REST API
+      
 volumes:
   rabbitmq_data:
   redis_data:

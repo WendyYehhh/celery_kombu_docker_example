@@ -8,7 +8,9 @@ app = Celery(
     'celery_instance', 
     broker=BROKER_URL,
     backend=RESULT_BACKEND,
-    include=['tasks']
+    include=['tasks'],
+    task_send_sent_event=True,
+    worker_send_task_events=True,
 )
 
 
